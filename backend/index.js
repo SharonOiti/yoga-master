@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const cors = require('cors');
 require('dotenv').config();
+const stripe = require("stripe")(process.env.PAYMENT_SECRET);
 const port = process.env.PORT || 5000;
 
 // middleware
@@ -222,26 +223,14 @@ async function run() {
         res.send(result);
     })
     // delete cart item
-app.delete('/delete-cart-item/:id', async (req, res) => {
-    console.log('DELETE request received for ID:', req.params.id); // Debug log
-
-    try {
+    app.delete('/delete-cart-item/:id', async (req, res)=> {
         const id = req.params.id;
-        const query = { classId: id };
-
-        // Assuming you use MongoDB and have ObjectId conversion, add it if necessary
+        const query = {classId: id};
         const result = await cartCollection.deleteOne(query);
+        res.send(result);
+    })
+    //PAYMENTS Route
 
-        if (result.deletedCount === 0) {
-            return res.status(404).send({ message: 'Item not found or already deleted' });
-        }
-
-        res.send({ message: 'Item deleted successfully', result });
-    } catch (error) {
-        console.error('Error deleting cart item:', error);
-        res.status(500).send({ message: 'Internal Server Error', error: error.message });
-    }
-});
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
